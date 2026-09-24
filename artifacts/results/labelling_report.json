@@ -1,0 +1,32 @@
+{
+  "n_labelled": 200,
+  "human_reviewed_rows": 0,
+  "label_source": "gpt-5.4-prelabel",
+  "strata": {
+    "random": 100,
+    "stratified": 60,
+    "adversarial": 25,
+    "policy_trap": 15
+  },
+  "prelabel_override": {
+    "intent_override_rate": 0.0,
+    "action_override_rate": 0.0,
+    "note": "0 by construction: gold IS the pre-label. Not a measurement."
+  },
+  "gold_intents_random": {
+    "account_access": 7,
+    "playback_technical": 12,
+    "feature_feedback": 17,
+    "catalog_content": 14,
+    "subscription_plan": 19,
+    "availability_pricing_question": 2,
+    "library_lost": 2,
+    "billing_payment": 4,
+    "non_support": 6,
+    "account_settings_howto": 4,
+    "complaint_escalation": 7,
+    "other_unclear": 5,
+    "dm_followup": 1
+  },
+  "warning": "No human reviewed any row. Metrics against this file measure agreement between the classifier and gpt-5.4, not accuracy."
+}

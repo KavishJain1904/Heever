@@ -1,0 +1,182 @@
+{
+  "n_train": 100,
+  "n_test": 100,
+  "rules_coverage": 0.18,
+  "tfidf_tuning": {
+    "note": "grid search skipped: a class has <2 training rows"
+  },
+  "intent": {
+    "majority": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 17,
+        "n": 100,
+        "rate": 0.17,
+        "ci_low": 0.10893476059773155,
+        "ci_high": 0.25548181233642975,
+        "ci_width_pp": 14.65470517386982
+      },
+      "macro_f1": 0.02235371466140697,
+      "macro_f1_ci": [
+        0.015151515151515152,
+        0.03333333333333334
+      ],
+      "mcnemar_vs_heever": {
+        "b_heever_only": 49,
+        "c_baseline_only": 10,
+        "statistic": 24.47457627118644,
+        "p_value": 7.52968779957405e-07
+      }
+    },
+    "random_prior": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 11,
+        "n": 100,
+        "rate": 0.11,
+        "ci_low": 0.06254131955225126,
+        "ci_high": 0.18631463027903022,
+        "ci_width_pp": 12.377331072677897
+      },
+      "macro_f1": 0.06719148298095666,
+      "macro_f1_ci": [
+        0.03110969363090404,
+        0.10714325616286399
+      ],
+      "mcnemar_vs_heever": {
+        "b_heever_only": 51,
+        "c_baseline_only": 6,
+        "statistic": 33.96491228070175,
+        "p_value": 5.611494830105459e-09
+      }
+    },
+    "rules": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 25,
+        "n": 100,
+        "rate": 0.25,
+        "ci_low": 0.1754509400372426,
+        "ci_high": 0.3430464637007583,
+        "ci_width_pp": 16.75955236635157
+      },
+      "macro_f1": 0.15822588175977362,
+      "macro_f1_ci": [
+        0.10162399691811456,
+        0.2161920895310223
+      ],
+      "mcnemar_vs_heever": {
+        "b_heever_only": 40,
+        "c_baseline_only": 9,
+        "statistic": 18.367346938775512,
+        "p_value": 1.8215297148967956e-05
+      }
+    },
+    "tfidf_svm": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 39,
+        "n": 100,
+        "rate": 0.39,
+        "ci_low": 0.300167219319702,
+        "ci_high": 0.48797163832501844,
+        "ci_width_pp": 18.780441900531642
+      },
+      "macro_f1": 0.32910451663179036,
+      "macro_f1_ci": [
+        0.22328140348965617,
+        0.43023964631501393
+      ],
+      "mcnemar_vs_heever": {
+        "b_heever_only": 32,
+        "c_baseline_only": 15,
+        "statistic": 5.446808510638298,
+        "p_value": 0.019604108570366
+      }
+    },
+    "retrieval_nn": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 35,
+        "n": 100,
+        "rate": 0.35,
+        "ci_low": 0.2636410465347802,
+        "ci_high": 0.4474573957080203,
+        "ci_width_pp": 18.381634917324007
+      },
+      "macro_f1": 0.29082332907053077,
+      "macro_f1_ci": [
+        0.20223357217079108,
+        0.3640641608168298
+      ],
+      "mcnemar_vs_heever": {
+        "b_heever_only": 33,
+        "c_baseline_only": 12,
+        "statistic": 8.88888888888889,
+        "p_value": 0.0028691127920766127
+      }
+    },
+    "heever_llm": {
+      "accuracy": {
+        "label": "accuracy",
+        "successes": 56,
+        "n": 100,
+        "rate": 0.56,
+        "ci_low": 0.4622792771125631,
+        "ci_high": 0.6532813459903167,
+        "ci_width_pp": 19.10020688777536
+      },
+      "macro_f1": 0.44262866762866765,
+      "macro_f1_ci": [
+        0.3249532974318654,
+        0.5276911169418973
+      ]
+    }
+  },
+  "action": {
+    "heever_accuracy": {
+      "label": "action_accuracy",
+      "successes": 32,
+      "n": 100,
+      "rate": 0.32,
+      "ci_low": 0.2366901081545688,
+      "ci_high": 0.4166280225367919,
+      "ci_width_pp": 17.993791438222306
+    },
+    "kappa_vs_gold": {
+      "n": 100,
+      "p0": 1.0,
+      "pe": 1.0,
+      "kappa": 1.0,
+      "table": {
+        "a_both_yes": 100,
+        "b_r1_only": 0,
+        "c_r2_only": 0,
+        "d_both_no": 0
+      },
+      "pabak": 1.0,
+      "ac1": 1.0,
+      "band": "reliable",
+      "raw_agreement_ci": [
+        0.9630051925239981,
+        0.9999999999999999
+      ]
+    },
+    "confusion": {
+      "escalate->escalate": 32,
+      "escalate->auto (bad auto-send)": 0,
+      "auto->escalate (needless escalation)": 68,
+      "auto->auto": 0
+    },
+    "escalate_everything_accuracy": {
+      "label": "always_escalate",
+      "successes": 32,
+      "n": 100,
+      "rate": 0.32,
+      "ci_low": 0.2366901081545688,
+      "ci_high": 0.4166280225367919,
+      "ci_width_pp": 17.993791438222306
+    },
+    "automation_rate": 0.0
+  }
+}

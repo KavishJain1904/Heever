@@ -1,0 +1,189 @@
+# Every threshold in the system lives here. Nothing that a reviewer might want to
+# argue with should be a constant in code.
+#
+# Rationale: Hiver's public position is "You decide when AI steps in... and set the
+# bar for what needs human review." Config-as-policy is the demonstration of that,
+# not an implementation detail. See docs/02 §1.
+
+version: 1
+
+brand:
+  # Chosen on measured DM-deflection, not preference. See docs/01 §5-6.
+  handle: SpotifyCares
+  fallback_handle: hulu_support
+
+corpus:
+  raw_csv: data/raw/twcs.csv
+  # sha256 of twcs.csv, identical on the laptop and the DGX copy (checked 2026-09-16).
+  # 2,811,774 CSV records (3,002,524 physical lines -- tweets contain newlines).
+  raw_sha256: cd297fcfa1bf6f99938be242e8e578980bc6d1b96adc8691abec9a39175b03c0
+  threads_parquet: data/threads.parquet
+  sample_ids: data/sample_ids.txt
+  # Deterministic hash subsample. Conversation-level (hash the root id), never
+  # tweet-level -- tweet-level sampling leaks turns across train/eval. docs/01 §8.
+  sample_percent: 5
+  sample_hash: md5
+  # Scope is first-turn inbound messages only. 62.5% of inbound tweets are thread
+  # starters; the rest are context-free fragments. docs/05 §6.
+  starters_only: true
+  min_thread_turns: 2
+  drop_empty_brand: true        # ~20,794 conversations sit under an empty brand string
+
+taxonomy:
+  path: taxonomy/intents.yaml
+  # Frozen before labelling begins. Changing this file after golden_200.csv is
+  # labelled invalidates the golden set. docs/13 §1.
+  frozen: true
+
+thresholds:
+  # Policy-ladder gates. docs/02 §6, docs/12 §7.
+  tau_intent: 0.75              # CONFIDENCE GATE: below this -> escalate
+  tau_retrieval: 0.35           # NO-PRECEDENT GATE: top-1 exemplar COSINE (MiniLM) below this -> escalate.
+                                # Was compared to the RRF score (max ~0.033) until 2026-09-16 -- a unit bug.
+  auto_refund_ceiling_usd: 50   # COMPLIANCE VETO: any larger amount -> billing_specialist
+  max_thread_turns_auto: 4      # CONTEXT GATE: long threads are not first-contact
+  repeat_contact_window_days: 7
+
+cost_model:
+  # Elkan (IJCAI 2001): T = C_FP / (C_FP + C_FN). A bad auto-send costs this many
+  # times a needless escalation. Stated as an arguable assumption, with a
+  # sensitivity table over {5, 10, 20, 50}. docs/04 §7, docs/14 §6.
+  bad_autosend_vs_needless_escalation: 20
+  sensitivity_ratios: [5, 10, 20, 50]
+
+retrieval:
+  encoder: sentence-transformers/all-MiniLM-L6-v2
+  embedding_dim: 384
+  embeddings_path: artifacts/embeddings_minilm.npy
+  embeddings_dtype: float16
+  bm25_k1: 1.5
+  bm25_b: 0.75
+  candidates_per_scorer: 50
+  rrf_k: 60                     # Cormack et al., SIGIR 2009 -- the canonical constant
+  mmr_lambda: 0.7               # Carbonell & Goldstein, SIGIR 1998
+  top_k_exemplars: 3
+  # Hard filters. Cross-brand retrieval is actively harmful. docs/02 §3.
+  filter_by_brand: true
+  filter_by_intent: true
+  unfiltered_tail: 5            # keep a few cross-intent hits so a misclassification isn't fatal
+  # Off by default and ablated, because off-the-shelf rerankers have been measured
+  # degrading nDCG on out-of-distribution corpora. docs/02 §3.
+  rerank:
+    enabled: false
+    model: BAAI/bge-reranker-base
+
+models:
+  # Generator and judge MUST be different families. Self-preference is linearly
+  # correlated with self-recognition capability (arXiv:2404.13076). docs/04 §5.
+  # API path (2026-09-16): OpenAI generator + Gemini judge. The DGX judge
+  # (Qwen2.5-14B via local-vllm) is parked until the home quota allows it; switch
+  # a role back by changing its provider/id -- src/llm_client.py handles all four.
+  generator:
+    provider: openai
+    id: gpt-5-nano
+    max_tokens: 4096
+    # Reasoning tokens count against max_tokens; minimal effort keeps a
+    # 280-char draft from spending its budget thinking.
+    reasoning_effort: minimal
+    # NOTE: temperature/top_p/top_k are NOT set. Reasoning models reject them.
+    # Determinism comes from the response cache, not a sampling parameter. docs/10 §6.
+  judge:
+    # 2026-09-16: Gemini dropped for time -- only an OpenAI key was available before
+    # the deadline. Same vendor as the generator, different size tier. The
+    # self-preference risk this reintroduces is listed in the report's honesty
+    # section rather than hidden. Switch back: provider gemini, id gemini-2.5-flash.
+    provider: openai
+    id: gpt-5.4-mini
+    max_tokens: 4096
+    reasoning_effort: low
+    fallback_provider: local-vllm
+    fallback_id: Qwen/Qwen2.5-14B-Instruct   # DGX, if storage frees up
+  distiller:
+    provider: openai
+    id: gpt-5-nano
+    max_tokens: 8192
+    reasoning_effort: low
+    threads_per_playbook: 50
+
+cache:
+  # Committed. This is what makes `make eval-full` reproducible offline and what
+  # replaces temperature=0 as the determinism guarantee. docs/10 §6.
+  path: artifacts/llm_cache.jsonl
+  key_fields: [model_id, prompt_template_version, input_text]
+  # Fail loudly on a miss with no API key. A silent skip turns a broken
+  # reproduction into a passing one. docs/05 §5 item 18.
+  on_miss_without_key: fail
+
+generation:
+  prompt_template_version: v1
+  # Evaluation only: draft a reply even when the ladder escalates, so the judge
+  # scores a uniform sample. Escalated drafts are logged, never sent. Set false in
+  # production to stop paying for drafts nobody sends.
+  draft_on_escalate: true
+  max_reply_chars: 280
+  max_repair_retries: 1         # bounded; every repair is logged
+  banned_commitment_verbs:
+    - guarantee
+    - guaranteed
+    - we will refund
+    - you're entitled to
+    - you are entitled to
+    - compensate
+    - waive
+
+policy:
+  # escalation_code -> queue. Mirrors Hiver's skill-based routing. docs/02 §6.
+  routes:
+    SAFETY_RISK:            {route_to: trust_and_safety,   priority: P0}
+    LEGAL_THREAT:           {route_to: legal_escalations,  priority: P1}
+    ACCOUNT_SECURITY:       {route_to: account_security,   priority: P1}
+    SUSPECTED_INJECTION:    {route_to: trust_and_safety,   priority: P2}
+    PII_IN_PUBLIC_TWEET:    {route_to: privacy,            priority: P1}
+    MONEY_ABOVE_THRESHOLD:  {route_to: billing_specialist, priority: P2}
+    NO_PRECEDENT:           {route_to: tier2_generalist,   priority: P3}
+    LOW_CONFIDENCE:         {route_to: tier2_generalist,   priority: P3}
+    REPEAT_CONTACT:         {route_to: tier2_generalist,   priority: P2}
+    UNGROUNDED_COMMITMENT:  {route_to: tier2_generalist,   priority: P2}
+
+evaluation:
+  golden_set: data/golden_200.csv
+  strata:
+    # The headline may only be quoted off `random`. Everything else diagnoses.
+    # docs/04 §1.
+    random:      {n: 100, headline_eligible: true}
+    stratified:  {n: 60,  headline_eligible: false}
+    adversarial: {n: 25,  headline_eligible: false}
+    policy_trap: {n: 15,  headline_eligible: false}
+  bootstrap_replicates: 10000
+  bootstrap_seed: 42
+  # A bootstrap replicate where a rare class has zero support leaves F1 undefined.
+  # The two conventions give materially different intervals; declare ours. docs/14 §4.
+  bootstrap_zero_support: drop_class
+  macro_f1_formula: arithmetic_mean_of_per_class_f1
+  confidence_level: 0.95
+  # Declare the slice count up front so the multiple-comparisons correction is
+  # not chosen after seeing the results. docs/14 §5.
+  declared_slice_count: 10
+  multiple_comparisons: holm_bonferroni
+  judge:
+    rubric_version: v1
+    criteria_order: randomised
+    score_both_orderings: true
+    paraphrase_runs: 3
+    # verdicts_path is the file Tier 1 (src/evaluate.py --from-artifacts) reads,
+    # so it must be safe to commit: no tweet text. It points at the REDACTED
+    # verdicts (reasoning/quote/draft stripped by scripts/redact_artifacts.py),
+    # which is the only judge_verdicts* file tracked in git. verdicts_path_full
+    # is the local, gitignored file with full judge reasoning/quotes -- only
+    # scripts/run_experiment.py's judge/judge-sheet/judge-import stages touch it.
+    verdicts_path: artifacts/results/judge_verdicts.redacted.jsonl
+    verdicts_path_full: artifacts/results/judge_verdicts.jsonl
+
+runtime:
+  concurrency: 4                # asyncio.Semaphore(n); not a rate limiter
+  retry_on: [429, 500, 502, 503, 504]
+  max_retries: 4
+  backoff_base_seconds: 2
+  decisions_log: artifacts/results/decisions.jsonl
+  run_report: artifacts/results/run_report.json
+  seed: 42

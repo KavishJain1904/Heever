@@ -1,0 +1,39 @@
+{
+  "threads_total": 1390,
+  "threads_held_out": 230,
+  "brand_replies_in_pool": 1600,
+  "resolution_precedents": 176,
+  "precedent_ratio": 0.11,
+  "dedupe": {
+    "n_input": 191,
+    "n_kept": 176,
+    "n_duplicates": 15,
+    "duplicate_rate": 0.07853403141361257
+  },
+  "precedent_intents": {
+    "dm_followup": 30,
+    "subscription_plan": 25,
+    "billing_payment": 13,
+    "playback_technical": 40,
+    "feature_feedback": 13,
+    "account_access": 22,
+    "catalog_content": 20,
+    "account_settings_howto": 3,
+    "library_lost": 2,
+    "non_support": 1,
+    "other_unclear": 2,
+    "complaint_escalation": 3,
+    "availability_pricing_question": 2
+  },
+  "style_card": {
+    "n_replies": 1600,
+    "mean_length_chars": 129.73875,
+    "median_length_chars": 131,
+    "signature_rate": 0.72875,
+    "emoji_rate": 0.145625,
+    "question_rate": 0.48375,
+    "url_rate": 0.51875,
+    "dm_deflection_rate": 0.244375,
+    "note": "dm_deflection_rate is the number that turns DM handoff from a retrieval accident into a defensible action -- it is what the playbook cites."
+  }
+}

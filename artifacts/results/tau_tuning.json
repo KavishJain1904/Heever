@@ -1,0 +1,242 @@
+{
+  "cost_ratio": 20.0,
+  "max_bad_share": 0.047619047619047616,
+  "chosen_tau_intent": 0.3,
+  "tuned_on": "stratified+adversarial+policy_trap",
+  "sweep_tune": [
+    {
+      "tau": 0.3,
+      "n": 100,
+      "automated": 42,
+      "automation_rate": 0.42,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.023809523809523808
+    },
+    {
+      "tau": 0.35,
+      "n": 100,
+      "automated": 41,
+      "automation_rate": 0.41,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.024390243902439025
+    },
+    {
+      "tau": 0.4,
+      "n": 100,
+      "automated": 41,
+      "automation_rate": 0.41,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.024390243902439025
+    },
+    {
+      "tau": 0.45,
+      "n": 100,
+      "automated": 31,
+      "automation_rate": 0.31,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.03225806451612903
+    },
+    {
+      "tau": 0.5,
+      "n": 100,
+      "automated": 29,
+      "automation_rate": 0.29,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.034482758620689655
+    },
+    {
+      "tau": 0.55,
+      "n": 100,
+      "automated": 28,
+      "automation_rate": 0.28,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.03571428571428571
+    },
+    {
+      "tau": 0.6,
+      "n": 100,
+      "automated": 18,
+      "automation_rate": 0.18,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.05555555555555555
+    },
+    {
+      "tau": 0.65,
+      "n": 100,
+      "automated": 10,
+      "automation_rate": 0.1,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.1
+    },
+    {
+      "tau": 0.7,
+      "n": 100,
+      "automated": 5,
+      "automation_rate": 0.05,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.75,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.8,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.85,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.9,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.95,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    }
+  ],
+  "sweep_random_report_only": [
+    {
+      "tau": 0.3,
+      "n": 100,
+      "automated": 40,
+      "automation_rate": 0.4,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.1
+    },
+    {
+      "tau": 0.35,
+      "n": 100,
+      "automated": 40,
+      "automation_rate": 0.4,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.1
+    },
+    {
+      "tau": 0.4,
+      "n": 100,
+      "automated": 40,
+      "automation_rate": 0.4,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.1
+    },
+    {
+      "tau": 0.45,
+      "n": 100,
+      "automated": 32,
+      "automation_rate": 0.32,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.125
+    },
+    {
+      "tau": 0.5,
+      "n": 100,
+      "automated": 32,
+      "automation_rate": 0.32,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.125
+    },
+    {
+      "tau": 0.55,
+      "n": 100,
+      "automated": 32,
+      "automation_rate": 0.32,
+      "bad_auto_sends": 4,
+      "bad_share_of_automated": 0.125
+    },
+    {
+      "tau": 0.6,
+      "n": 100,
+      "automated": 20,
+      "automation_rate": 0.2,
+      "bad_auto_sends": 3,
+      "bad_share_of_automated": 0.15
+    },
+    {
+      "tau": 0.65,
+      "n": 100,
+      "automated": 9,
+      "automation_rate": 0.09,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.1111111111111111
+    },
+    {
+      "tau": 0.7,
+      "n": 100,
+      "automated": 7,
+      "automation_rate": 0.07,
+      "bad_auto_sends": 1,
+      "bad_share_of_automated": 0.14285714285714285
+    },
+    {
+      "tau": 0.75,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.8,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.85,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.9,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    },
+    {
+      "tau": 0.95,
+      "n": 100,
+      "automated": 0,
+      "automation_rate": 0.0,
+      "bad_auto_sends": 0,
+      "bad_share_of_automated": 0.0
+    }
+  ],
+  "at_chosen_on_random": {
+    "tau": 0.3,
+    "n": 100,
+    "automated": 40,
+    "automation_rate": 0.4,
+    "bad_auto_sends": 4,
+    "bad_share_of_automated": 0.1
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "n_messages": 200,
+  "wall_clock_seconds": 10.692640400025994,
+  "tokens_in": 171387,
+  "tokens_out": 24613,
+  "cost_usd_total": 0.018414550000000002,
+  "cost_usd_per_message": 9.207275000000001e-05,
+  "latency_ms_p50": 199.60960000753403,
+  "latency_ms_p95": 309.70398007193575,
+  "cache_hit_rate": 1.0,
+  "repair_rate": 0.06,
+  "policy_layer_counts": {
+    "confidence_gate": 184,
+    "default": 4,
+    "no_precedent_gate": 6,
+    "compliance_veto": 6
+  },
+  "action_counts": {
+    "escalate": 200
+  }
+}

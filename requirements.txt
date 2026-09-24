@@ -1,0 +1,23 @@
+# Pinned. CPU-only by default -- a reviewer on a laptop must be able to run
+# `make setup && make eval`. GPU extras live in requirements-dgx.txt and are
+# never on the reproduction path (docs/02 §9).
+polars==1.17.1
+pyarrow==18.1.0
+numpy==2.1.3
+scipy==1.14.1
+scikit-learn==1.5.2
+sentence-transformers==3.3.1
+torch==2.5.1
+rank-bm25==0.2.2
+pydantic==2.10.3
+PyYAML==6.0.2
+openai==3.14.0         # generator, LLM baseline, distiller (src/llm_client.py)
+google-genai==2.8.0    # judge -- a different model family from the generator
+anthropic==0.40.0      # optional: the original Claude path
+python-dotenv==1.0.1
+# Windows has no system tz database; without this, polars panics converting the
+# UTC created_at column ("unexpected time zone offset: 'UTC'"). Linux ships one.
+tzdata==2026.4
+matplotlib==3.9.3
+pytest==8.3.4
+openpyxl==3.1.5        # xlsx golden-set sheets (scripts/build_label_sheet.py, scripts/run_experiment.py)

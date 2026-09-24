@@ -1,0 +1,198 @@
+# Intent taxonomy for SpotifyCares -- FROZEN 2026-09-16.
+#
+# Provenance: the draft's eleven classes were a cross-industry prior (docs/01 §9,
+# docs/03 §2) and on reading real SpotifyCares traffic several of them do not exist
+# for a streaming service (no orders, no deliveries, no returns). This version was
+# drawn by reading 160 randomly sampled opening tweets from data/threads.parquet
+# (pandas sample, random_state=7), grouping by the action the customer wants, then
+# merging groups whose routing is identical. The embedding-clustering induction in
+# src/induce_taxonomy.py was NOT run: time-boxed out, stated in the decision log.
+#
+# Changes from the prior, each a decision-log entry:
+#   - order_delivery_status, refund_return, change_of_details: dropped/merged. Refund
+#     asks on Spotify are always about a subscription charge -> billing_payment.
+#   - service_outage_technical split into playback_technical and library_lost:
+#     "my downloads vanished" has a different remediation (restore via account
+#     tools, needs the account) than "the app crashes" (generic troubleshooting).
+#   - catalog_content added: "where is <album>" is ~12% of the sample and its honest
+#     answer is "licensing, we can't say when" -- a policy-trap magnet.
+#   - feature_feedback added: requests and complaints about product decisions.
+#     Nothing to fix, so a public acknowledgement is the whole resolution.
+#   - dm_followup added: "I DM'd you" / "check your DMs". Twitter-specific, carries
+#     no problem statement at all, and the only correct action is to route to the DM
+#     queue. No industry taxonomy has it because it only exists on public channels.
+#
+# FREEZING PROTOCOL (docs/13 §1): editing this file after data/golden_200.csv is
+# labelled invalidates the golden set.
+
+version: 2
+status: frozen
+frozen_at: "2026-09-16"
+target_intent_count: [8, 12]
+
+precedence_rule: >
+  Label the action the customer is asking the company to take. If two actions are
+  requested, label the one that determines routing. If both determine the same
+  routing, label the one mentioned first. Anger does not change the class unless
+  being heard or escalated is the only ask (then complaint_escalation).
+
+scope_classes:
+  in_scope: [account_access, billing_payment, subscription_plan, playback_technical,
+             library_lost, catalog_content, feature_feedback, account_settings_howto,
+             availability_pricing_question, dm_followup, complaint_escalation]
+  filter: [non_support]
+  escalate: [other_unclear]
+
+intents:
+
+  - name: account_access
+    definition: >
+      Customer cannot get into their account (login fails, password reset fails,
+      account disabled/terminated) or reports it hacked, taken over, or used by
+      someone else.
+    default_action: escalate       # never auto-handled, at any confidence
+    positive:
+      - "someone hacked my account and deleted my playlist is there anyway of getting it back?"
+      - "I can't log in and when I try to reset my password it says my address isn't registered."
+    not_this:
+      - "Account works, wants to change email/username -> account_settings_howto"
+      - "Logged in but premium features missing -> subscription_plan"
+
+  - name: billing_payment
+    definition: >
+      Money: an unexpected, wrong or duplicate charge, a refund request, a payment
+      that fails, or charges continuing after cancellation.
+    default_action: escalate       # money is always a human decision above the ceiling
+    positive:
+      - "I tried making a Spotify account with student and it charged me 2 times and I wanna get it fixed please"
+      - "why can't I pay for spotify premium wtf? fix this"
+    not_this:
+      - "Asking what a plan costs, hypothetically -> availability_pricing_question"
+      - "Paid, but plan not active -> subscription_plan"
+
+  - name: subscription_plan
+    definition: >
+      The customer's plan is not in the state they expect or they want to change it:
+      premium not activating, student verification failing, family plan invites or
+      address checks, trials, upgrade/downgrade/cancel/pause.
+    default_action: dm_handoff      # needs the account to look at
+    positive:
+      - "I just got the free trial for premium and it's working on my laptop but my phone still says I'm on the free subscription"
+      - "I'm having trouble being verified for Premium for students."
+    not_this:
+      - "Charged the wrong amount for the plan -> billing_payment"
+
+  - name: playback_technical
+    definition: >
+      Something that should work does not: playback fails or stops, app crashes or
+      won't open, error messages, device/Connect/offline problems, ads playing on a
+      premium account. Nothing is missing from the library; it just doesn't work.
+    default_action: auto_send      # the brand's historical answer is a troubleshooting step
+    positive:
+      - "I can't get any tracks to play, tried logging out, deleting cookies, restarting computer."
+      - "your app constantly crashes or doesn't respond. Any known issues for this on android?"
+    not_this:
+      - "A specific song/album is unavailable or missing -> catalog_content"
+      - "Saved/downloaded music disappeared -> library_lost"
+
+  - name: library_lost
+    definition: >
+      The customer's own saved songs, downloads, or playlists have disappeared or
+      been deleted (not by a hacker).
+    default_action: dm_handoff      # restoring needs the account
+    positive:
+      - "why have all my saved and downloaded songs and albums disappeared from my phone again?"
+      - "can I retrieve my playlists? I'd love to have them back!"
+    not_this:
+      - "Deleted by someone who got into the account -> account_access"
+
+  - name: catalog_content
+    definition: >
+      About Spotify's catalogue: an album, song or artist that is missing, removed,
+      greyed out, incomplete or mislabelled, or a request to add one.
+    default_action: auto_send      # policy trap: must not promise a date or availability
+    positive:
+      - "this album says it has 9 songs but there's only 2? Are you able to fix this at all?"
+      - "Why isn't Lemonade on Spotify??????"
+    not_this:
+      - "Nothing plays at all -> playback_technical"
+
+  - name: feature_feedback
+    definition: >
+      A feature request, or an opinion about how the product works (recommendations,
+      ads, UI changes, removed features). There is nothing broken on this account.
+    default_action: auto_send
+    positive:
+      - "Dear @user can you add a feature where you can block an artist from appearing in playlists, shuffle, radio, etc?"
+      - "still pissed @user removed the touch preview feature from the app"
+    not_this:
+      - "Asks how to do something that exists -> account_settings_howto"
+
+  - name: account_settings_howto
+    definition: >
+      How to do something on a working account: change display name, email, login
+      method, payment card, privacy/public playlists, sharing.
+    default_action: auto_send
+    positive:
+      - "how can I change my login to my email rather than Facebook?"
+      - "how to remove my credit card information in spotify ?"
+    not_this:
+      - "Cannot log in to make the change -> account_access"
+
+  - name: availability_pricing_question
+    definition: >
+      General question about Spotify as a service: availability in a country, price
+      or payment methods accepted, bundles (e.g. Hulu), roadmap ("will you launch X").
+      Not about this customer's account state.
+    default_action: auto_send      # policy trap: dates and prices must be grounded
+    positive:
+      - "When will @user be available in Romania ?"
+      - "does spotify still take a visa gift card as a form of payment for premium?"
+    not_this:
+      - "My plan/charge is wrong -> subscription_plan / billing_payment"
+
+  - name: dm_followup
+    definition: >
+      The tweet only points to a private-message conversation ("I DM'd you", "please
+      check your DMs", "sent you a message") without enough problem detail to act on
+      publicly.
+    default_action: escalate       # route to the DM queue; nothing to answer in public
+    positive:
+      - "i dmed u"
+      - "Hi! Can you please check your dms?"
+    not_this:
+      - "Mentions a DM but states the problem clearly -> the problem's class"
+
+  - name: complaint_escalation
+    definition: >
+      Dissatisfaction is the whole message: venting, demanding a human, threatening to
+      leave or take action, repeated failed contacts, with no specific fixable ask.
+    default_action: escalate
+    positive:
+      - "you are whack and definitely do not care"
+      - "20 msgs, 10 customer serv reps, 6 weeks later, you still havent taken care of my hacked account"
+    not_this:
+      - "Angry but asks for a specific fix -> that fix's class (the hacked-account example is account_access if the ask is the account; label by the ask)"
+
+  - name: non_support
+    definition: >
+      Not a support request: praise, thanks, jokes, marketing/ad copy, playlist
+      promotion, music chat, tweets that merely mention Spotify. FILTER -- do not reply.
+    default_action: filter
+    positive:
+      - "Great customer service, such a helpful team!"
+      - "Tried Premium yet? Your favorite music, ad-free, on-demand and offline."
+    not_this:
+      - "Thanks WITH a follow-up question -> the question's class"
+
+  - name: other_unclear
+    definition: >
+      A support request no class covers, too vague to classify ("I need help",
+      "what's going on [URL]" with no text), or not in English. ESCALATE -- a human
+      should look.
+    default_action: escalate
+    positive:
+      - "I have an issue I can't find answer to on the Spotify website. Need help please"
+      - "What exactly is going on here ? Please fix that . [URL]"
+    not_this:
+      - "Not a support request at all -> non_support"

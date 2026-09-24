@@ -1,0 +1,7 @@
+# Experiment path only. NOT required to reproduce any headline number.
+# Used for: offline playbook distillation at scale, and the independent
+# open-weight judge (different family from the generator). docs/02 §9.
+-r requirements.txt
+vllm==0.6.4.post1
+setfit==1.1.0
+umap-learn==0.5.7

@@ -1,0 +1,48 @@
+# data — never commit the raw Kaggle dump
+data/raw/
+*.csv.gz
+*.zip
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+*.egg-info/
+
+# secrets
+.env
+kaggle.json
+
+# Tweet TEXT stays local (CC BY-NC-SA; commit ids + labels only, TweetSumm precedent).
+# These files embed raw or quoted tweet text; the scripts that rebuild them are committed.
+# judge_verdicts.jsonl (full judge reasoning + quoted tweet text) stays local, but
+# judge_verdicts.redacted.jsonl (scripts/redact_artifacts.py output: pass/fail only,
+# no text) is exactly what Tier 1 (`make eval`) reads and IS committed -- the
+# negation must stay below the judge_verdicts* pattern it un-ignores.
+data/threads.parquet
+data/golden_200_candidates.json
+data/golden_200_prelabels.json
+data/golden_pilot_30.json
+data/*.xlsx
+sample.csv
+label_*.html
+# judge_human_30.html (scripts/build_judge_tool.py) also embeds tweet text and
+# drafts inline -- same reason as label_*.html above.
+judge_human_30.html
+artifacts/llm_cache.jsonl
+artifacts/results/decisions.jsonl
+artifacts/results/judge_verdicts*.jsonl
+!artifacts/results/judge_verdicts.redacted.jsonl
+artifacts/results/errors_random.json
+~$*
+
+# run logs and local tooling
+artifacts/results/*.log
+.claude/launch.json
+
+# artifacts that are regenerated
+runs/
+*.faiss
+.DS_Store
