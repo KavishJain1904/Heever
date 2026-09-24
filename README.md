@@ -68,7 +68,7 @@ An engineer should be able to execute from these without reopening the research.
 ## Reproduction
 
 ```
-git clone https://github.com/SirjanSingh/Heever.git && cd Heever
+git clone https://github.com/KavishJain1904/Heever.git && cd Heever
 make setup
 make eval          # Tier 1: every headline number, CI and significance test,
                    # from committed predictions + labels + judge verdicts.
